@@ -1,0 +1,27 @@
+{
+	"name": "wefree.club-sdk",
+	"version": "1.0.0",
+	"description": "Thư viện hỗ trợ kết nối truy xuất CSDL với hệ thống https://v2.wefree.club",
+	"main": "lib/index.js",
+	"types": "lib/index.d.ts",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "tsc"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/min3rd/wefree.club-sdk.git"
+	},
+	"keywords": [
+		"wefree.club"
+	],
+	"author": "vanminh.vu",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/min3rd/wefree.club-sdk/issues"
+	},
+	"homepage": "https://github.com/min3rd/wefree.club-sdk#readme",
+	"devDependencies": {
+		"typescript": "^4.9.3"
+	}
+}
