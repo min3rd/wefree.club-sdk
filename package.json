@@ -13,7 +13,9 @@
 		"url": "git+https://github.com/min3rd/wefree.club-sdk.git"
 	},
 	"keywords": [
-		"wefree.club"
+		"wefree.club",
+        "v2.wefree.club",
+        "anime database"
 	],
 	"author": "vanminh.vu",
 	"license": "MIT",
