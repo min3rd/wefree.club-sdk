@@ -1,7 +1,7 @@
-## Về chúng tôi
-
-## Bắt đầu
+## Giới thiệu
 
 ## Cài đặt
+
+## Hướng dẫn sử dụng
 
 ## Liên hệ
