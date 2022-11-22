@@ -25,7 +25,7 @@ export class Client implements IClient {
 		this.http.defaults.baseURL = !this.config.ssl
 			? "http://"
 			: "https://" +
-			  `${this.config?.host}/app/${this.config.apiVersion}/api`;
+			  `${this.config?.host}/api/${this.config.apiVersion}`;
 		return this;
 	}
 	handle(response: AxiosResponse<any, any>): void {
