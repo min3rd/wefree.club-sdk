@@ -9,6 +9,7 @@ export declare class Client implements IClient {
     config?: IConfig;
     constructor(config?: IConfig);
     configure(config?: IConfig): IClient;
+    acquireToken(): void;
     handle(response: AxiosResponse<any, any>): void;
     async_getCategories(page?: number, number?: number): Promise<ICategory[]>;
     noAsync_getCategories(resolve: Function, page: number, number: number, reject?: Function): void;

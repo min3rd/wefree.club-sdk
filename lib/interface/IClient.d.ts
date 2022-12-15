@@ -7,6 +7,7 @@ export default interface IClient {
     config?: IConfig;
     configure(config: IConfig): IClient;
     handle(response: AxiosResponse): void;
+    acquireToken(): void;
     async_getCategories(page: number, number: number): Promise<ICategory[]>;
     noAsync_getCategories(resolve: Function, page: number, number: number, reject: Function): void;
     async_getAnimesByCategoryId(categoryId: string, page: number, number: number): Promise<IAnime[]>;

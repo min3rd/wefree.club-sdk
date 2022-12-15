@@ -1,10 +1,8 @@
 import { ApiRoute } from "./common/api.route";
-import axios, { AxiosResponse, AxiosStatic } from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse, AxiosStatic } from "axios";
 import IClient from "./interface/IClient";
 import { IConfig } from "./interface/IConfig";
-import { IAnime } from "./models/IAnime.model";
-import { ICategory } from "./models/ICategory.model";
-import { IEpisode } from "./models/IEpisode.model";
+import IMetaResponse from "./models/IMetaResponse.model";
 function default_reject(e: any) {
 	console.error(e);
 }
@@ -19,15 +17,27 @@ export class Client implements IClient {
 			clientId: config?.clientId || "",
 			secret: config?.secret || "",
 			host: config?.host || "v2.wefree.club",
-			ssl: config?.ssl || true,
+			ssl: config?.ssl || false,
 			apiVersion: config?.apiVersion || "v2",
 		};
-		this.http.defaults.baseURL = !this.config.ssl
-			? "http://"
-			: "https://" +
-			  `${this.config?.host}/api/${this.config.apiVersion}`;
+		this.http.defaults.baseURL =
+			(!this.config.ssl ? "http://" : "https://") +
+			`${this.config?.host}/api/${this.config.apiVersion}`;
+		this.http.interceptors.request.use(
+			(config: AxiosRequestConfig) => {
+				config.headers = {
+					clientId: `${this.config?.clientId}`,
+					secret: `${this.config?.secret}`,
+				};
+				return config;
+			},
+			(error: any) => {
+				return Promise.reject(error);
+			}
+		);
 		return this;
 	}
+	acquireToken(): void {}
 	handle(response: AxiosResponse<any, any>): void {
 		if (response.status == 400) {
 			throw new Error("Bad request");
@@ -45,7 +55,7 @@ export class Client implements IClient {
 	async async_getCategories(
 		page: number = 0,
 		number: number = 10
-	): Promise<ICategory[]> {
+	): Promise<IMetaResponse> {
 		const url = await Promise.resolve(
 			ApiRoute.get_categories(page, number)
 		);
@@ -54,25 +64,16 @@ export class Client implements IClient {
 		return response.data;
 	}
 	noAsync_getCategories(
-		resolve: Function,
-		page: number,
-		number: number,
-		reject: Function = default_reject
-	): void {
-		this.http
-			.get(ApiRoute.get_categories(page, number))
-			.then((response) => {
-				resolve(response.data);
-			})
-			.catch((e) => {
-				reject(e);
-			});
+		page: number = 0,
+		number: number = 10
+	): Promise<AxiosResponse<any, any>> {
+		return this.http.get(ApiRoute.get_categories(page, number));
 	}
 	async async_getAnimesByCategoryId(
 		categoryId: string,
 		page: number = 0,
 		number: number = 10
-	): Promise<IAnime[]> {
+	): Promise<IMetaResponse> {
 		const url = await Promise.resolve(
 			ApiRoute.get_animes_by_category_id(categoryId, page, number)
 		);
@@ -82,19 +83,14 @@ export class Client implements IClient {
 	}
 	noAsync_getAnimesByCategoryId(
 		categoryId: string,
-		resolve: Function,
 		page: number = 0,
-		number: number = 10,
-		reject: Function = default_reject
-	): void {
-		this.http
-			.get(ApiRoute.get_animes_by_category_id(categoryId, page, number))
-			.then((response) => {
-				resolve(response);
-			})
-			.catch((e) => reject(e));
+		number: number = 10
+	): any {
+		return this.http.get(
+			ApiRoute.get_animes_by_category_id(categoryId, page, number)
+		);
 	}
-	async async_getAnimeByAnimeId(animeId: string): Promise<IAnime> {
+	async async_getAnimeByAnimeId(animeId: string): Promise<IMetaResponse> {
 		const url = await Promise.resolve(
 			ApiRoute.get_anime_by_anime_id(animeId)
 		);
@@ -102,21 +98,14 @@ export class Client implements IClient {
 		this.handle(response);
 		return response.data;
 	}
-	noAsync_getAnimeByAnimeId(
-		animeId: string,
-		resolve: Function,
-		reject: Function = default_reject
-	): void {
-		this.http
-			.get(ApiRoute.get_anime_by_anime_id(animeId))
-			.then((r) => resolve(r))
-			.catch((e) => reject(e));
+	noAsync_getAnimeByAnimeId(animeId: string): any {
+		return this.http.get(ApiRoute.get_anime_by_anime_id(animeId));
 	}
 	async async_getAnimesByQuery(
 		query: string,
 		page: number = 0,
 		number: number = 10
-	): Promise<IAnime[]> {
+	): Promise<IMetaResponse> {
 		const url = await Promise.resolve(
 			ApiRoute.get_animes_by_query(query, page, number)
 		);
@@ -126,21 +115,16 @@ export class Client implements IClient {
 	}
 	noAsync_getAnimesByQuery(
 		query: string,
-		resolve: Function,
 		page: number = 0,
-		number: number = 10,
-		reject: Function = default_reject
-	): void {
-		this.http
-			.get(ApiRoute.get_animes_by_query(query, page, number))
-			.then((r) => resolve(r))
-			.catch((e) => reject(e));
+		number: number = 10
+	): any {
+		return this.http.get(ApiRoute.get_animes_by_query(query, page, number));
 	}
 	async async_getEpisodesByAnimeId(
 		animeId: string,
 		page: number,
 		number: number
-	): Promise<IEpisode[]> {
+	): Promise<IMetaResponse> {
 		const url = await Promise.resolve(
 			ApiRoute.get_episodes_by_anime_id(animeId, page, number)
 		);
@@ -150,17 +134,16 @@ export class Client implements IClient {
 	}
 	noAsync_getEpisodesByAnimeId(
 		animeId: string,
-		resolve: Function,
 		page: number = 0,
-		number: number = 10,
-		reject: Function = default_reject
-	): void {
-		this.http
-			.get(ApiRoute.get_episodes_by_anime_id(animeId, page, number))
-			.then((r) => resolve(r))
-			.catch((e) => reject(e));
+		number: number = 10
+	): any {
+		return this.http.get(
+			ApiRoute.get_episodes_by_anime_id(animeId, page, number)
+		);
 	}
-	async async_getEpisodeByEpisodeId(episodeId: string): Promise<IEpisode> {
+	async async_getEpisodeByEpisodeId(
+		episodeId: string
+	): Promise<IMetaResponse> {
 		const url = await Promise.resolve(
 			ApiRoute.get_episodes_by_episode_id(episodeId)
 		);
@@ -168,14 +151,7 @@ export class Client implements IClient {
 		this.handle(response);
 		return response.data;
 	}
-	noAsync_getEpisodeByEpisodeId(
-		episodeId: string,
-		resolve: Function,
-		reject: Function = default_reject
-	): void {
-		this.http
-			.get(ApiRoute.get_episodes_by_episode_id(episodeId))
-			.then((r) => resolve(r))
-			.catch((e) => reject(e));
+	noAsync_getEpisodeByEpisodeId(episodeId: string): any {
+		return this.http.get(ApiRoute.get_episodes_by_episode_id(episodeId));
 	}
 }
