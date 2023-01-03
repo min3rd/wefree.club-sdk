@@ -14,6 +14,19 @@ export class Client implements IClient {
     constructor(config?: IConfig) {
         this.configure(config);
     }
+    setLocation(location: string): void {
+        if (!this.config) {
+            this.config = {
+                clientId: "",
+                secret: "",
+                host: "v2.wefree.club",
+                ssl: true,
+                apiVersion: "v2",
+                location: "vn",
+            }
+        }
+        this.config.location = location;
+    }
     configure(config?: IConfig): IClient {
         this.config = {
             clientId: config?.clientId || "",
@@ -21,6 +34,7 @@ export class Client implements IClient {
             host: config?.host || "v2.wefree.club",
             ssl: config?.ssl || false,
             apiVersion: config?.apiVersion || "v2",
+            location: config?.location || "vn",
         };
         this.http.defaults.baseURL =
             (!this.config.ssl ? "http://" : "https://") +
@@ -56,10 +70,11 @@ export class Client implements IClient {
     }
     async async_getCategories(
         page: number = 0,
-        number: number = 10
+        number: number = 10,
+        location = ""
     ): Promise<ICategoriesMetaResponse> {
         const url = await Promise.resolve(
-            ApiRoute.get_categories(page, number)
+            ApiRoute.get_categories(page, number, !location ? this.config?.location : location)
         );
         const response = await this.http.get(url);
         this.handle(response);
@@ -67,17 +82,19 @@ export class Client implements IClient {
     }
     noAsync_getCategories(
         page: number = 0,
-        number: number = 10
+        number: number = 10,
+        location = ""
     ): Promise<AxiosResponse<any, any>> {
-        return this.http.get(ApiRoute.get_categories(page, number));
+        return this.http.get(ApiRoute.get_categories(page, number, !location ? this.config?.location : location));
     }
     async async_getAnimesByCategoryId(
         categoryId: string,
         page: number = 0,
-        number: number = 10
+        number: number = 10,
+        location = ""
     ): Promise<IAnimesMetaResponse> {
         const url = await Promise.resolve(
-            ApiRoute.get_animes_by_category_id(categoryId, page, number)
+            ApiRoute.get_animes_by_category_id(categoryId, page, number, !location ? this.config?.location : location)
         );
         const response = await this.http.get(url);
         this.handle(response);
@@ -86,30 +103,32 @@ export class Client implements IClient {
     noAsync_getAnimesByCategoryId(
         categoryId: string,
         page: number = 0,
-        number: number = 10
+        number: number = 10,
+        location = ""
     ): any {
         return this.http.get(
-            ApiRoute.get_animes_by_category_id(categoryId, page, number)
+            ApiRoute.get_animes_by_category_id(categoryId, page, number, !location ? this.config?.location : location)
         );
     }
-    async async_getAnimeByAnimeId(animeId: string): Promise<IAnimeMetaResponse> {
+    async async_getAnimeByAnimeId(animeId: string, location = ""): Promise<IAnimeMetaResponse> {
         const url = await Promise.resolve(
-            ApiRoute.get_anime_by_anime_id(animeId)
+            ApiRoute.get_anime_by_anime_id(animeId, !location ? this.config?.location : location)
         );
         const response = await this.http.get(url);
         this.handle(response);
         return response.data;
     }
-    noAsync_getAnimeByAnimeId(animeId: string): any {
-        return this.http.get(ApiRoute.get_anime_by_anime_id(animeId));
+    noAsync_getAnimeByAnimeId(animeId: string, location = ""): any {
+        return this.http.get(ApiRoute.get_anime_by_anime_id(animeId, !location ? this.config?.location : location));
     }
     async async_getAnimesByQuery(
         query: string,
         page: number = 0,
-        number: number = 10
+        number: number = 10,
+        location = ""
     ): Promise<IAnimesMetaResponse> {
         const url = await Promise.resolve(
-            ApiRoute.get_animes_by_query(query, page, number)
+            ApiRoute.get_animes_by_query(query, page, number, !location ? this.config?.location : location)
         );
         const response = await this.http.get(url);
         this.handle(response);
@@ -118,17 +137,19 @@ export class Client implements IClient {
     noAsync_getAnimesByQuery(
         query: string,
         page: number = 0,
-        number: number = 10
+        number: number = 10,
+        location = ""
     ): any {
-        return this.http.get(ApiRoute.get_animes_by_query(query, page, number));
+        return this.http.get(ApiRoute.get_animes_by_query(query, page, number, !location ? this.config?.location : location));
     }
     async async_getEpisodesByAnimeId(
         animeId: string,
-        page: number,
-        number: number
+        page: number = 0,
+        number: number = 10,
+        location = ""
     ): Promise<IEpisodesMetaResponse> {
         const url = await Promise.resolve(
-            ApiRoute.get_episodes_by_anime_id(animeId, page, number)
+            ApiRoute.get_episodes_by_anime_id(animeId, page, number, !location ? this.config?.location : location)
         );
         const response = await this.http.get(url);
         this.handle(response);
@@ -137,23 +158,25 @@ export class Client implements IClient {
     noAsync_getEpisodesByAnimeId(
         animeId: string,
         page: number = 0,
-        number: number = 10
+        number: number = 10,
+        location = ""
     ): any {
         return this.http.get(
-            ApiRoute.get_episodes_by_anime_id(animeId, page, number)
+            ApiRoute.get_episodes_by_anime_id(animeId, page, number, !location ? this.config?.location : location)
         );
     }
     async async_getEpisodeByEpisodeId(
-        episodeId: string
+        episodeId: string,
+        location = ""
     ): Promise<IEpisodeMetaResponse> {
         const url = await Promise.resolve(
-            ApiRoute.get_episodes_by_episode_id(episodeId)
+            ApiRoute.get_episodes_by_episode_id(episodeId, !location ? this.config?.location : location)
         );
         const response = await this.http.get(url);
         this.handle(response);
         return response.data;
     }
-    noAsync_getEpisodeByEpisodeId(episodeId: string): any {
-        return this.http.get(ApiRoute.get_episodes_by_episode_id(episodeId));
+    noAsync_getEpisodeByEpisodeId(episodeId: string, location = ""): any {
+        return this.http.get(ApiRoute.get_episodes_by_episode_id(episodeId, !location ? this.config?.location : location));
     }
 }
